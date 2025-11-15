@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happy Birthday Manu - Full Celebration</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+    /* FLAME STYLES START HERE (Add these rules) */
+.flame { 
+    opacity: 0; 
+    transition: opacity 0.5s ease 0.5s; 
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 8px;
+    height: 15px;
+    background: transparent;
+    /* This border-radius creates the classic flame shape (rounded top, flat bottom) */
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+    box-shadow: 0 0 5px 2px rgba(255, 165, 0, 0.8);
+    filter: blur(1px);
+}
+
+.flame.lit { 
+    opacity: 1; 
+    background: #ffcc00; /* Yellow center */
+    animation: flicker 0.3s infinite alternate;
+    box-shadow: 0 0 8px 3px rgba(255, 165, 0, 0.8), 
+                0 0 15px 5px rgba(255, 69, 0, 0.6); /* Orange/Red Glow */
+}
+
+@keyframes flicker {
+    0% { transform: translateX(-50%) scale(1); box-shadow: 0 0 8px 3px #ffa500, 0 0 15px 5px #ff4500; }
+    50% { transform: translateX(-50%) scale(1.05); box-shadow: 0 0 6px 2px #ffcc00, 0 0 12px 4px #ff6347; }
+    100% { transform: translateX(-50%) scale(0.98); box-shadow: 0 0 7px 3px #ffcc00, 0 0 14px 5px #ff4500; }
+}
+/* FLAME STYLES END HERE */
+    body {
+        background-color: #1e1e1e;
+        font-family: 'Cormorant Garamond', serif;
+        overflow-x: hidden;
+    }
+
+    /* === Global/Shared Styles === */
+    .vintage-paper {
+        background-color: #fff8e1; 
+        background-image: linear-gradient(
+            rgba(255, 255, 255, 0.5) 0%,
+            rgba(255, 255, 255, 0.0) 25%,
+            rgba(230, 200, 150, 0.1) 75%,
+            rgba(255, 255, 255, 0.5) 100%
+        );
+        color: #5d4037; 
+    }
+    .fade-in {
+        animation: fadeIn 1s ease-out forwards;
+        opacity: 0;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* === Splash Screen === */
+    #splash-screen {
+        position: fixed;
+        top:0; left:0;
+        width:100%; height:100%;
+        background: #fce9e5;
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        flex-direction:column;
+        z-index:1000;
+    }
+    #splash-screen h1 { margin-top:20px; font-size:2rem; color:#6b4f33;}
+    #splash-screen p { margin-top:5px; color:#444;}
+    .splash-bear { width:180px; animation: pop 1.5s ease-in-out infinite;}
+    @keyframes pop {0%{transform:scale(1);}50%{transform:scale(1.06);}100%{transform:scale(1);} }
+
+    /* === Main Landing === */
+    #main-page { display:none; text-align:center; padding:60px 20px;}
+    .hero-bear { width:260px; animation: float 3s ease-in-out infinite; }
+    @keyframes float {0%{transform:translateY(0);}50%{transform:translateY(-12px);}100%{transform:translateY(0);} }
+    .hero-title { font-size:2.8rem; margin-top:20px; color:#6b4f33; font-weight:600;}
+    .hero-title span { color:#a03c78; }
+    .hero-text { margin-top:10px; font-size:1.1rem; color:#555; width:85%; margin:auto;}
+    .enter-btn { display:inline-block; margin-top:35px; padding:12px 28px; background:#6b4f33; color:white; border-radius:12px; font-size:1.1rem; transition:0.3s;}
+    .enter-btn:hover { background:#8a6545; }
+
+    /* === Music button === */
+    #music-btn { position:fixed; bottom:20px; right:20px; padding:12px 16px; background:#a03c78; color:white; border:none; border-radius:12px; cursor:pointer; font-size:1rem; box-shadow:0 4px 10px rgba(0,0,0,0.2); z-index: 900;}
+    #music-btn:hover { background:#7a2d5d; }
+
+    /* === Letter Page === */
+    #letter-page { display:none; min-height:100vh; flex-direction:column; justify-content:center; align-items:center; padding:6px 12px; }
+    .letter-container { width:100%; max-width:800px; margin:auto; background:#fff8e1; color:#5d4037; border:4px solid #8d6e63; border-radius:xl; padding:2rem; overflow:hidden; transition: all 1s ease; }
+    .letter-content { max-height:0; opacity:0; overflow:hidden; transition:max-height 1.5s ease-in-out, opacity 1s ease 0.5s;}
+    .letter-content.open { max-height:1500px; opacity:1;}
+    .open-tab { cursor:pointer; background:#b71c1c; color:white; padding:0.75rem 2rem; border-radius:9999px; text-align:center; margin:1rem auto; font-weight:600; user-select:none; transition:0.3s;}
+    .open-tab:hover { background:#d32f2f; transform:translateY(-2px);}
+    .next-page-btn { background:#6b4f33; color:white; padding:12px 28px; border-radius:12px; font-size:1.1rem; transition:0.3s; margin-top: 2rem;}
+    .next-page-btn:hover { background:#8a6545; }
+
+
+    /* === Gift Page Styles (Page 2 - Non-Scrollable) === */
+    #gift-page { 
+        display: none; 
+        min-height: 100vh; 
+        height: 100vh;
+        align-items: center; 
+        justify-content: center; 
+        padding: 40px 20px; 
+        overflow: hidden; 
+    }
+    
+    /* Gift Box Styles */
+    #box-bottom {
+        background: #a30e0e; 
+        border-radius: 4px;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+        z-index: 10;
+    }
+    #box-lid {
+        background: #c51616; 
+        border-radius: 6px;
+        bottom: 96px; 
+        transform-origin: bottom center;
+        transition: transform 1s cubic-bezier(0.68, -0.55, 0.265, 1.55), background-color 0.5s;
+        z-index: 20;
+    }
+    
+    /* Cupcake Styles (Shortened for brevity) */
+    #cupcake {
+        width: 70px;
+        height: 70px;
+        transform: translateX(-50%) translateY(40px);
+        transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.5s;
+        opacity: 0; 
+    }
+    .cupcake-liner { width: 100%; height: 35px; background: #5d4037; border-radius: 0 0 15px 15px; box-shadow: inset 0 2px 5px rgba(0,0,0,0.3); }
+    .cupcake-top { width: 80px; height: 45px; background: #f48fb1; border-radius: 50%; position: absolute; top: -20px; left: 50%; transform: translateX(-50%); box-shadow: 0 4px 6px rgba(0,0,0,0.2); border: 2px solid white; }
+
+    /* Candle Styles (Shortened for brevity) */
+    .candle-wrapper { position: absolute; top: -50px; left: 50%; transform: translateX(-50%); z-index: 30; width: 6px; height: 20px; }
+    .candle { width: 100%; height: 100%; border-radius: 2px; box-shadow: 0 0 5px rgba(0,0,0,0.3); }
+    .flame { opacity: 0; transition: opacity 0.5s ease 0.5s; /*...other flame styles... */}
+    .flame.lit { opacity: 1; /*...other lit styles... */ }
+    /* ... rest of candle/smoke styles ... */
+    
+    /* Curtain Styles (Shortened for brevity) */
+    #curtain-wrapper { position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; z-index: 50; }
+    .curtain-half { position: absolute; top: 0; width: 50%; height: 100%; background: #8b0000; box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5); transition: transform 1s ease-in-out; pointer-events: auto; }
+    #left-curtain { left: 0; border-radius: 0 50px 50px 0; }
+    #right-curtain { right: 0; border-radius: 50px 0 0 50px; }
+    #left-curtain.open-curtain { transform: translateX(-100%); }
+    #right-curtain.open-curtain { transform: translateX(100%); }
+
+    /* === Video Page Styles (Page 3) === */
+    #video-page {
+        display: none;
+        min-height: 100vh;
+        height: 100vh;
+        overflow: hidden;
+        background-color: #000; /* Dark background for video contrast */
+        position: relative;
+    }
+    .video-slide {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        opacity: 0; /* Start hidden */
+        transition: opacity 1.5s ease-in-out; /* Fade transition */
+    }
+    .video-slide.active {
+        opacity: 1;
+    }
+    .video-slide video {
+        max-width: 100%;
+        max-height: 100vh;
+        object-fit: contain;
+    }
+</style>
+</head>
+<body>
+
+<div id="splash-screen">
+    <img src="pngegg.png" class="splash-bear" alt="Bear">
+    <h1>Happy Birthday Manu!</h1>
+    <p>Loading surprises...</p>
+</div>
+
+<div id="main-page">
+    <img src="bear.png" class="hero-bear" alt="Bear">
+    <h1 class="hero-title">Happy Birthday <span>Manu</span> 🎉</h1>
+    <p class="hero-text">Wishing you a beautiful year filled with joy, laughter, and sweetness—just like bears 🐻!</p>
+    <button class="enter-btn" id="enter-letter">Enter the Celebration</button>
+</div>
+
+<div id="letter-page" class="flex">
+    <div class="letter-container">
+        <div id="closed-state" class="text-center">
+            <h1 class="font-['Playfair_Display'] text-4xl font-bold mb-2">Awaiting Your Touch</h1>
+            <p class="text-lg italic">A private correspondence, sealed with affection.</p>
+        </div>
+
+        <div id="open-tab" class="open-tab">
+            Open Letter
+        </div>
+
+        <div id="message-content" class="letter-content pt-0">
+            <hr class="border-[#8d6e63] border-t-2 mb-6">
+            <p class="text-center text-xl mb-6 font-['Playfair_Display'] italic font-bold">To My Dearest Friend, On the Dawn of Your Day,</p>
+            <div class="space-y-6 text-base leading-relaxed">
+                <p>
+                    Helloooooyyyy...If you ask my teenage self that one day you are going to meet a arrogant boy who would become someone you cannot go by without talking she would disagree.
+If you tell me on the first day of college that we will end up being the bestest of friends I would have disagreed.
+Because the possibility of us was never in my head.
+                </p>
+                <p>
+                  I am rich in life because I had the opportunity to be a part of your life but we both know that you should be more grateful.
+From the first day of college to hating you to the last day of college still hating you(with love) 😂😂, you have managed to bring everything I have never hoped in my life.
+                </p>
+                <p>
+                    Happy Birthday To the Most Sweetest Person I know and I hope you can remain the most youthful energetic persona like always even when your hair turns grey.
+xoxo 
+Pinky Promise to never let us be strangers.
+                    May your days be bright, your heart light, and your laughter contagious. Remember that every birthday is not just a milestone, but a celebration of the beauty and love you bring into the world.
+                </p>
+            </div>
+            
+            <div class="mt-12 text-center">
+                <button id="next-page-btn" class="next-page-btn hidden">
+                    Proceed to Page 2 (Your Gift) &rarr;
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="gift-page" class="flex flex-col items-center justify-center">
+    <div class="w-full max-w-xl mx-auto rounded-xl shadow-lg vintage-paper p-6 sm:p-8 border-4 border-[#8d6e63] fade-in">
+        
+        <h1 class="text-center font-['Playfair_Display'] text-3xl font-bold mb-4">A Small Gift Awaits</h1>
+        <hr class="border-[#8d6e63] border-t-2 mb-6">
+        
+        <div id="gift-container" class="text-center p-2">
+            <p id="cake-instruction" class="text-xl mb-4 font-['Playfair_Display'] font-bold">
+                Draw back the velvet curtains to see your surprise!
+            </p>
+            
+            <div id="gift-scene" class="flex justify-center items-end h-[300px] relative">
+                
+                <div id="box-bottom" class="w-48 h-24 absolute bottom-0">
+                    <div id="cupcake" class="absolute bottom-0 left-1/2" style="z-index: 15;">
+                        <div class="cupcake-liner"></div>
+                        <div class="cupcake-top"></div>
+                        <div class="candle-wrapper">
+                            <div class="candle bg-white"></div>
+                            <div class="flame" id="flame-1"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="box-lid" class="w-52 h-6 absolute"></div>
+
+                <div id="curtain-wrapper">
+                    <div id="left-curtain" class="curtain-half"></div>
+                    <div id="right-curtain" class="curtain-half"></div>
+                </div>
+            </div>
+            
+            <div class="mt-6 text-center transition-opacity duration-500">
+                <button id="blow-button" class="px-8 py-3 bg-red-800 text-white rounded-full font-['Playfair_Display'] text-xl font-bold tracking-wider hover:bg-red-700 transition duration-300 shadow-xl">
+                    Draw the Curtains
+                </button>
+            </div>
+            
+            <p id="end-message" class="text-xl mt-6 font-['Playfair_Display'] italic font-bold hidden text-[#e91e63] opacity-0 transition-opacity duration-1000">
+                &mdash; Your wish is sealed. Happy Birthday! &mdash;
+            </p>
+        </div>
+        
+        <div class="mt-8 text-center">
+            <button id="back-to-letter" class="inline-block px-6 py-2 bg-red-800 text-white rounded-lg font-['Playfair_Display'] font-bold tracking-wider hover:bg-red-700 transition duration-300 shadow-md">
+                &larr; Read Page 1 Again
+            </button>
+        </div>
+        <p class="mt-2 text-right text-base italic font-['Playfair_Display'] text-sm">
+            A small gift on Page 2
+        </p>
+    </div>
+</div>
+
+<div id="video-page">
+    
+    <div class="video-slide" data-duration="4000">
+        <video src="video1.mp4" muted playsinline></video>
+    </div>
+    
+    <div class="video-slide" data-duration="5000">
+        <video src="video2.mp4" muted playsinline></video>
+    </div>
+
+    <div class="video-slide" data-duration="6000">
+        <video src="video3.mp4" muted playsinline></video>
+    </div>
+
+    <div class="video-slide" data-duration="6000">
+        <video src="video4.mp4" muted playsinline></video>
+    </div>
+
+    <div class="video-slide" data-duration="6000">
+        <video src="video5.mp4" muted playsinline></video>
+    </div>
+    
+    <div class="video-slide" data-duration="6000">
+        <video src="video6.mp4" muted playsinline></video>
+    </div>
+
+    <div class="video-slide" data-duration="6000">
+        <video src="video7.mp4" muted playsinline></video>
+    </div>
+
+    <div class="video-slide" data-duration="6000">
+        <video src="video8.mp4" muted playsinline></video>
+    </div>
+
+    <div class="video-slide" data-duration="6000">
+        <video src="video9.mp4" muted playsinline></video>
+    </div>
+
+    <div class="video-slide" data-duration="6000">
+        <video src="video10.mp4" muted playsinline></video>
+    </div>
+
+    <div class="video-slide" data-duration="6000">
+        <video src="video11.mp4" muted playsinline></video>
+    </div>
+
+    <div class="video-slide" data-duration="6000">
+        <video src="video12.mp4" muted playsinline></video>
+    </div>
+
+    <div class="video-slide" data-duration="6000">
+        <video src="video13.mp4" muted playsinline></video>
+    </div>
+
+    <div class="video-slide" data-duration="6000">
+        <video src="video14.mp4" muted playsinline></video>
+    </div>
+
+    <div class="video-slide text-white bg-pink-800 text-center flex-col p-10">
+        <h1 class="text-4xl font-['Playfair_Display'] mb-4">The End!</h1>
+        <p class="text-xl">Hope you enjoyed your celebration! Happy Birthday, Manu! 🎉</p>
+        <button id="start-over-btn" class="next-page-btn mt-6 bg-white text-[#6b4f33]">
+            Start Over
+        </button>
+    </div>
+    
+</div>
+
+<audio id="bg-music" src="song.mp3" loop></audio>
+<button id="music-btn">Play Music 🎵</button>
+
+<script>
+    // === PAGE 1 VARIABLES ===
+    const splash = document.getElementById('splash-screen');
+    const mainPage = document.getElementById('main-page');
+    const letterPage = document.getElementById('letter-page');
+    const enterBtn = document.getElementById('enter-letter');
+    const openTab = document.getElementById('open-tab');
+    const messageContent = document.getElementById('message-content');
+    const closedState = document.getElementById('closed-state');
+    const nextPageBtn = document.getElementById('next-page-btn'); 
+
+    // === PAGE 2 VARIABLES ===
+    const giftPage = document.getElementById('gift-page'); 
+    const blowButton = document.getElementById('blow-button');
+    const flame = document.getElementById('flame-1');
+    const boxLid = document.getElementById('box-lid');
+    const cupcake = document.getElementById('cupcake');
+    const instruction = document.getElementById('cake-instruction');
+    const endMessage = document.getElementById('end-message');
+    const leftCurtain = document.getElementById('left-curtain');
+    const rightCurtain = document.getElementById('right-curtain');
+    const curtainWrapper = document.getElementById('curtain-wrapper');
+    const backToLetterBtn = document.getElementById('back-to-letter');
+    
+    let isCurtainDrawn = false;
+    let isOpened = false;
+    let isBlown = false;
+
+    // === PAGE 3 VARIABLES (NEW) ===
+    const videoPage = document.getElementById('video-page');
+    const videoSlides = document.querySelectorAll('#video-page .video-slide');
+    const startOverBtn = document.getElementById('start-over-btn');
+    let currentVideoIndex = 0;
+
+
+    // === MUSIC CONTROLS ===
+    const musicBtn = document.getElementById('music-btn');
+    const music = document.getElementById('bg-music');
+    let playing = false;
+    musicBtn.addEventListener('click', () => {
+        if (!playing) { music.play(); musicBtn.textContent="Pause Music ⏸️"; playing=true; }
+        else { music.pause(); musicBtn.textContent="Play Music 🎵"; playing=false; }
+    });
+
+    // --- NAVIGATION FUNCTIONS ---
+
+    // Show main page after splash
+    setTimeout(() => {
+        splash.style.display='none';
+        mainPage.style.display='block';
+    }, 2200);
+
+    // Enter Letter (Main Page to Letter Page)
+    enterBtn.addEventListener('click', () => {
+        mainPage.style.display='none';
+        letterPage.style.display='flex';
+    });
+
+    // Open Letter (in Letter Page)
+    openTab.addEventListener('click', () => {
+        messageContent.classList.add('open');
+        closedState.style.display='none';
+        openTab.style.display='none';
+        nextPageBtn.classList.remove('hidden'); 
+    });
+
+    // Go to Gift Page (Letter Page to Gift Page)
+    nextPageBtn.addEventListener('click', () => {
+        letterPage.style.display = 'none';
+        giftPage.style.display = 'flex';
+        // Re-trigger fade-in
+        const paperContainer = giftPage.querySelector('.fade-in');
+        paperContainer.classList.remove('fade-in');
+        void paperContainer.offsetWidth; 
+        paperContainer.classList.add('fade-in');
+    });
+
+    // Go back to Letter Page (Gift Page to Letter Page)
+    backToLetterBtn.addEventListener('click', () => {
+        giftPage.style.display = 'none';
+        letterPage.style.display = 'flex';
+    });
+    
+    // Start Over
+    startOverBtn.addEventListener('click', () => {
+        location.reload(); // Simplest way to restart the whole experience
+    });
+
+    // --- VIDEO GALLERY LOGIC (NEW) ---
+    function startVideoSlideshow() {
+        giftPage.style.display = 'none';
+        videoPage.style.display = 'block';
+
+        function showNextVideo() {
+            // Hide the previous slide
+            if (currentVideoIndex > 0) {
+                videoSlides[currentVideoIndex - 1].classList.remove('active');
+                let prevVideo = videoSlides[currentVideoIndex - 1].querySelector('video');
+                if (prevVideo) prevVideo.pause();
+            }
+
+            // If we've run out of slides, stop
+            if (currentVideoIndex >= videoSlides.length) {
+                return;
+            }
+
+            // Show the current slide
+            const currentSlide = videoSlides[currentVideoIndex];
+            currentSlide.classList.add('active');
+
+            const videoElement = currentSlide.querySelector('video');
+            const duration = parseInt(currentSlide.dataset.duration) || 5000; // Default 5 seconds
+
+            if (videoElement) {
+                // Video slide: Play video, then move to next slide after video ends
+                videoElement.play();
+                videoElement.onended = () => {
+                    currentVideoIndex++;
+                    showNextVideo();
+                };
+            } else {
+                // Text slide (the final one): Stop here
+                return;
+            }
+
+            // Prevent indefinite waiting if video playback fails/takes too long (optional safety net)
+            setTimeout(() => {
+                if(videoElement && !videoElement.ended) {
+                    videoElement.pause();
+                    currentVideoIndex++;
+                    showNextVideo();
+                }
+            }, duration + 2000); // 2 seconds safety buffer
+
+        }
+        
+        // Start the process
+        showNextVideo();
+    }
+
+    // --- GIFT PAGE (PAGE 2) LOGIC ---
+    blowButton.addEventListener('click', () => {
+        if (!isCurtainDrawn) {
+            // STAGE 1: DRAW CURTAINS (Existing logic)
+            leftCurtain.classList.add('open-curtain');
+            rightCurtain.classList.add('open-curtain');
+            
+            setTimeout(() => {
+                instruction.textContent = "It's a gift! Click the button to open the box.";
+                blowButton.textContent = "Open Gift";
+                curtainWrapper.style.display = 'none'; 
+                isCurtainDrawn = true;
+            }, 1000); 
+
+        } else if (isCurtainDrawn && !isOpened) {
+            // STAGE 2: OPEN GIFT INTERACTION (Existing logic)
+            boxLid.style.transform = 'translateY(15px) translateX(-60px) rotate(-90deg)'; 
+            cupcake.style.opacity = '1';
+            cupcake.style.transform = 'translateX(-50%) translateY(0)';
+            
+            setTimeout(() => {
+                flame.classList.add('lit');
+                instruction.textContent = "It's lit! Make a wish, then blow it out!";
+                blowButton.textContent = "Blow Out Candle!";
+                isOpened = true;
+            }, 800); 
+
+        } else if (isOpened && !isBlown) {
+            // STAGE 3: BLOW OUT CANDLE INTERACTION (Modified)
+            
+            // Extinguish the single flame
+            flame.classList.remove('lit');
+            flame.classList.add('out');
+
+            // Change instruction text
+            instruction.textContent = "Your wish is sealed. Happy Birthday!";
+            instruction.classList.add('text-[#e91e63]');
+            
+            // Hide button and show the final message
+            blowButton.classList.add('opacity-0', 'pointer-events-none');
+            setTimeout(() => {
+                blowButton.style.display = 'none';
+                endMessage.classList.remove('hidden');
+                // Start fade in for the message
+                setTimeout(() => {
+                    endMessage.classList.add('opacity-100');
+                    
+                    // *** NEW: TRANSITION TO VIDEO PAGE ***
+                    setTimeout(startVideoSlideshow, 2500); // Wait 2.5 seconds after final message appears
+
+                }, 100);
+            }, 500); 
+
+            isBlown = true;
+        }
+    });
+</script>
+</body>
+</html>
